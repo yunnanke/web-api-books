@@ -22,3 +22,4 @@ D:\source\repos\API_Books\obj\Debug\net9.0\refint\API_Books.dll
 D:\source\repos\API_Books\obj\Debug\net9.0\API_Books.pdb
 D:\source\repos\API_Books\obj\Debug\net9.0\API_Books.genruntimeconfig.cache
 D:\source\repos\API_Books\obj\Debug\net9.0\ref\API_Books.dll
+D:\source\repos\API_Books\obj\Debug\net9.0\API_Books.sourcelink.json

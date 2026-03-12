@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using API_Books.api.Models;
+using API_Books.api.Services;
 
 namespace API_Books.api.Controllers;
 
@@ -7,63 +8,41 @@ namespace API_Books.api.Controllers;
 [Route("API_Books")]
 public class BooksController : ControllerBase
 {
-    private static readonly List<Book> _books = new()
+    private readonly IBookService _bookService;
+
+    public BooksController(IBookService bookService)
     {
-        new() { ID = 1, Title = "1984", Author = "George Orwell", Pages = 328 },
-        new() { ID = 2, Title = "The Hobbit", Author = "J.R.R. Tolkien", Pages = 310 }
-    };
+        _bookService = bookService;
+    }
 
     [HttpGet]
-    public IActionResult Get() => Ok(_books);
+    public ActionResult<List<Book>> Get() => _bookService.GetAll();
 
     [HttpGet("{id}")]
-    public IActionResult GetById(int id) =>
-        _books.FirstOrDefault(b => b.ID == id) is { } book
-            ? Ok(book)
-            : NotFound();
-
-    [HttpPut]
-    public IActionResult Create([FromBody] Book newbook)
+    public ActionResult<Book> Get(int id)
     {
-        if (newbook == null)
+        var book = _bookService.GetById(id);
+        if (book == null) { return NotFound(); }
+        return book;
+    }
+
+    [HttpPost]
+    public ActionResult<Book> Post( Book newbook)
+    {
+        if (newbook == null || string.IsNullOrWhiteSpace(newbook.Title) || newbook.Pages <= 0)
         {
             return BadRequest("Invalid book data.");
         }
+        var created = _bookService.Create(newbook);
 
-        newbook.ID = _books.Count > 0 ? _books.Max(b => b.ID) + 1 : 1;
-
-        _books.Add(newbook);
-        return CreatedAtAction(nameof(GetById), new { id = newbook.ID }, newbook);
+        return CreatedAtAction(nameof(Get), new { id = created.ID }, created);
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] Book updatebook)
-    {
-        if (updatebook == null || updatebook.ID != id)
-        {
-            return BadRequest("ID missmatch or invalid data.");
-        }
-        var extendingIndex = _books.FindIndex(b => b.ID == id);
-        if (extendingIndex == -1)
-        {
-            return NotFound();
-        }
-
-        updatebook.ID = id;
-        _books[extendingIndex] = updatebook;
-
-        return NoContent();
-    }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var bookToRemove = _books.FirstOrDefault(b => b.ID == id);
-        if (bookToRemove == null)
-        {
-            return NotFound();
-        }
-        _books.Remove(bookToRemove);
+        if(!_bookService.Delete(id)) { return NotFound(); }
         return NoContent();
     }
 }
