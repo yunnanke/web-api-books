@@ -16,6 +16,8 @@
 
 //app.Run();
 
+using API_Books.api.Service;
+using API_Books.api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,7 @@ builder.Services.AddControllers(options =>
 {
     options.SuppressAsyncSuffixInActionNames = false;
 });
+builder.Services.AddScoped<IBookService, InMemoryBookService>();
 
 var app = builder.Build();
 
